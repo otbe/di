@@ -17,10 +17,10 @@ export class Injector {
     const target = data.resolvesTo != null ? data.resolvesTo : Class;
 
     if (data.scope === 'transient') {
-      return this.resolve(target);
+      return data.factory == null ? this.resolveClass(target) : data.factory();
     } else if (data.scope === 'singleton') {
       if (!this.staticInjectionMap.has(Class)) {
-        this.staticInjectionMap.set(Class, this.resolve(target));
+        this.staticInjectionMap.set(Class, data.factory == null ? this.resolveClass(target) : data.factory());
       }
 
       return this.staticInjectionMap.get(Class);
@@ -29,11 +29,11 @@ export class Injector {
     throw 'not supported';
   }
 
-  private resolve(Class: any): any {
+  private resolveClass<T>(Class: new (...args: any[]) => T): T {
     const s = Reflect.getMetadata('design:paramtypes', Class) || [];
 
     const instance = new Class(...s.map(this.get.bind(this)));
-    Reflect.defineProperty(instance, '__injector', { configurable: false, writable: false, enumerable: false, value: this });
+    Reflect.defineProperty(instance as any, '__injector', { configurable: false, writable: false, enumerable: false, value: this });
 
     return instance;
   }

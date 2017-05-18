@@ -6,6 +6,7 @@ export interface FinalBinder {
 
 export interface ResolveBinder<T> extends FinalBinder {
   to<S extends T>(dep: new () => S): FinalBinder;
+  toFactory<S extends T>(dep: () => S): FinalBinder;
 }
 
 export interface Binder {
@@ -15,6 +16,7 @@ export interface Binder {
 export interface InjectorMetaData {
   scope: 'transient' | 'singleton';
   resolvesTo?: new <T>() => T;
+  factory?: <T>() => T;
 }
 
 export const createBinder = (injector: Injector): Binder => {
@@ -24,6 +26,7 @@ export const createBinder = (injector: Injector): Binder => {
 
     return {
       to(dep: new () => T) { data.resolvesTo = dep; return this; },
+      toFactory<T>(dep: () => T) { data.factory = dep; return this; },
       inTransientScope() { data.scope = 'transient'; }
     };
   };

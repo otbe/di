@@ -105,4 +105,42 @@ describe('ts-di', () => {
     expect(s1).toNotBe(s2);
     expect(s1).toBeA(Service2);
   });
+
+  it('factory', () => {
+    class Service {
+      private sectret: string;
+
+      constructor(secret: string) {
+        this.sectret = secret;
+      }
+
+      getSecret() { return this.sectret; }
+    }
+
+    class Test {
+      @inject
+      service: Service;
+
+      getSecret() {
+        return this.service.getSecret();
+      }
+    }
+
+    class MyModule implements Module {
+      init(bind: Binder) {
+        bind(Test);
+        bind(Service).toFactory(() => new Service('foo')).inTransientScope();
+      }
+    }
+
+    const s = Injector.getInjector(new MyModule());
+
+    const t1 = s.get(Test);
+    expect(t1.getSecret()).toBe('foo');
+
+    const s1 = s.get(Service);
+    const s2 = s.get(Service);
+    expect(s1).toNotBe(s2);
+    expect(s1).toBeA(Service);
+  });
 });
