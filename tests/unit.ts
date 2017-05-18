@@ -51,7 +51,7 @@ describe('ts-di', () => {
 
     class MyModule implements Module {
       init(bind: Binder) {
-        bind(Service).inTransientScope();
+        bind(Service).transient();
         bind(Test);
         bind(Service2);
       }
@@ -89,7 +89,7 @@ describe('ts-di', () => {
 
     class MyModule implements Module {
       init(bind: Binder) {
-        bind(Service).to(Service2).inTransientScope();
+        bind(Service).to(Service2).transient();
         bind(Test);
       }
     }
@@ -129,7 +129,7 @@ describe('ts-di', () => {
     class MyModule implements Module {
       init(bind: Binder) {
         bind(Test);
-        bind(Service).toFactory(() => new Service('foo')).inTransientScope();
+        bind(Service).toFactory(() => new Service('foo')).transient();
       }
     }
 
