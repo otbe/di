@@ -1,0 +1,45 @@
+{
+  "name": "ts-di",
+  "version": "0.0.0",
+  "description": "Takes a snapshot of a folder",
+  "main": "dist/index.js",
+  "typings": "dist/src/index.d.ts",
+  "ws": {
+    "type": "node"
+  },
+  "scripts": {
+    "build": "yarn run ws b",
+    "test": "yarn run ws lint && yarn run ws unit",
+    "preversion": "yarn run test",
+    "postversion": "git push && git push --tags"
+  },
+  "keywords": [
+    "test",
+    "snapshot",
+    "dir",
+    "folder",
+    "hash"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otbe/snapshot-dir.git"
+  },
+  "author": "Benjamin Otto",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/otbe/snapshot-dir/issues"
+  },
+  "homepage": "https://github.com/otbe/snapshot-dir#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@mercateo/ws": "^1.0.2",
+    "@types/expect": "^1.20.1",
+    "@types/mocha": "^2.2.41",
+    "expect": "^1.20.2",
+    "mocha": "^3.3.0",
+    "reflect-metadata": "^0.1.10"
+  },
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.X"
+  }
+}

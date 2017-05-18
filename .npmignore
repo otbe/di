@@ -1,0 +1,15 @@
+generated/
+.idea/
+build/
+node_modules/
+dist-tests/
+examples/
+typings/
+coverage/
+scripts/
+webpack-test.config.js
+webpack.config.js
+karma.conf.js
+.travis.yml
+.babelrc
+.editorconfig
