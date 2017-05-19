@@ -1,36 +1,58 @@
 import { Module } from './Module';
 import { createBinder, InjectorMetaData } from './Binder';
 
+export interface Newable<T> {
+  new (...args: any[]): T;
+}
+
+export type Identifier<T> = Newable<T> | string | symbol;
+
+export const INJECTION_MAP = Symbol();
+
 export class Injector {
   private staticInjectionMap = new WeakMap();
+  private bindings = new Map<Identifier<any>, InjectorMetaData>();
 
   static getInjector(module: Module) {
     const injector = new Injector();
 
-    module.init(createBinder(injector));
+    module.init(createBinder((identifier, data) => injector.bindings.set(identifier, data)));
 
     return injector;
   }
 
-  get<T>(Class: new (...args: any[]) => T): T {
-    const data: InjectorMetaData = Reflect.getOwnMetadata(this, Class);
-    const target = data.resolvesTo != null ? data.resolvesTo : Class;
+  get<T>(identifier: Newable<T> | string | symbol): T {
+    const data = this.bindings.get(identifier);
+
+    if (data == null) {
+      throw new Error('no binding found');
+    }
 
     if (data.scope === 'transient') {
-      return data.factory == null ? this.resolveClass(target) : data.factory();
+      return this.resolve(data);
     } else if (data.scope === 'singleton') {
-      if (!this.staticInjectionMap.has(Class)) {
-        this.staticInjectionMap.set(Class, data.factory == null ? this.resolveClass(target) : data.factory());
+      if (!this.staticInjectionMap.has(data)) {
+        this.staticInjectionMap.set(data, this.resolve(data));
       }
 
-      return this.staticInjectionMap.get(Class);
+      return this.staticInjectionMap.get(data);
     }
 
     throw 'not supported';
   }
 
+  private resolve(data: InjectorMetaData) {
+    if (data.class != null) {
+      return this.resolveClass(data.class);
+    } else if (data.factory != null) {
+      return data.factory();
+    } else if (data.value) {
+      return data.value;
+    }
+  }
+
   private resolveClass<T>(Class: new (...args: any[]) => T): T {
-    const s = Reflect.getMetadata('design:paramtypes', Class) || [];
+    const s = Reflect.getMetadata(INJECTION_MAP, Class) || [];
 
     const instance = new Class(...s.map(this.get.bind(this)));
     Reflect.defineProperty(instance as any, '__injector', { configurable: false, writable: false, enumerable: false, value: this });

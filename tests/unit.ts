@@ -1,7 +1,7 @@
 import expect from 'expect';
 import { Injector, Binder, Module, inject } from '../src/index';
 
-describe('ts-di', () => {
+describe('stupid-di', () => {
   it('simple', () => {
     class Test {
       sayHi() { return 'hi'; }
@@ -22,7 +22,7 @@ describe('ts-di', () => {
     expect(t2.sayHi()).toBe('hi');
   });
 
-  it('advanced', () => {
+  it('sub dependencies', () => {
     class Service {
       sayHi() { return 'hi'; }
     }
@@ -31,9 +31,9 @@ describe('ts-di', () => {
       sayHi() { return 'hi2'; }
     }
 
-    @inject
+    @inject()
     class Test {
-      @inject
+      @inject()
       private service: Service;
 
       private service2: Service2;
@@ -67,7 +67,7 @@ describe('ts-di', () => {
     expect(s1).toNotBe(s2);
   });
 
-  it('resolveTo', () => {
+  it('bind to', () => {
     class Service {
       sayHi() { return 'hi'; }
     }
@@ -79,7 +79,7 @@ describe('ts-di', () => {
     }
 
     class Test {
-      @inject
+      @inject()
       service: Service;
 
       sayServiceHi() {
@@ -118,7 +118,7 @@ describe('ts-di', () => {
     }
 
     class Test {
-      @inject
+      @inject()
       service: Service;
 
       getSecret() {
@@ -142,5 +142,68 @@ describe('ts-di', () => {
     const s2 = s.get(Service);
     expect(s1).toNotBe(s2);
     expect(s1).toBeA(Service);
+  });
+
+  it('constant values', () => {
+    const identifier = 'constantValue';
+
+    class Test {
+      @inject(identifier)
+      number: number;
+
+      getNumber() {
+        return this.number;
+      }
+    }
+
+    class MyModule implements Module {
+      init(bind: Binder) {
+        bind(Test);
+        bind(identifier).toConstant(8);
+      }
+    }
+
+    const s = Injector.getInjector(new MyModule());
+
+    const t1 = s.get(Test);
+    expect(t1.getNumber()).toBe(8);
+  });
+
+  it('named', () => {
+    const foo = 'foo';
+
+    class Service {
+      getSecret() {
+        return 'baz';
+      }
+    }
+
+    @inject([foo])
+    class Test {
+      @inject(foo)
+      secret: string;
+
+      constructor(secret: string, service: Service) {
+        expect(secret).toBe('bar');
+        expect(service.getSecret()).toBe('baz');
+      }
+
+      getSecret() {
+        return this.secret;
+      }
+    }
+
+    class MyModule implements Module {
+      init(bind: Binder) {
+        bind(Test);
+        bind(Service);
+        bind(foo).toFactory(() => 'bar');
+      }
+    }
+
+    const s = Injector.getInjector(new MyModule());
+
+    const t1 = s.get(Test);
+    expect(t1.getSecret()).toBe('bar');
   });
 });

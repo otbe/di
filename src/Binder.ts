@@ -1,32 +1,39 @@
-import { Injector } from './Injector';
+import { Identifier, Newable } from './Injector';
 
 export interface FinalBinder {
   transient(): void;
 }
 
 export interface ResolveBinder<T> extends FinalBinder {
-  to<S extends T>(dep: new () => S): FinalBinder;
+  to<S extends T>(dep: Newable<S>): FinalBinder;
   toFactory<S extends T>(dep: () => S): FinalBinder;
+  toConstant(value: any): void;
 }
 
 export interface Binder {
-  <T>(dependency: new (...args: any[]) => T): ResolveBinder<T>;
+  <T>(identifier: Identifier<T>): ResolveBinder<T>;
 }
 
 export interface InjectorMetaData {
   scope: 'transient' | 'singleton';
-  resolvesTo?: new <T>() => T;
+  class?: Newable<any>;
   factory?: <T>() => T;
+  value?: any;
 }
 
-export function createBinder(injector: Injector): Binder {
-  return <T>(dep: new () => T) => {
+export function createBinder(addBinding: (identifier: Identifier<any>, data: InjectorMetaData) => void): Binder {
+  return <T>(identifier: new () => T | string | symbol) => {
     const data: InjectorMetaData = { scope: 'singleton' };
-    Reflect.defineMetadata(injector, data, dep);
+    addBinding(identifier, data);
+
+    if (typeof identifier !== 'string' && typeof identifier !== 'symbol') {
+      data.class = identifier;
+    }
 
     return {
-      to(dep: new () => T) { data.resolvesTo = dep; return this; },
-      toFactory<T>(dep: () => T) { data.factory = dep; return this; },
+      to(dep: new () => T) { data.class = dep; return this; },
+      toFactory<T>(dep: () => T) { data.factory = dep;  data.class = undefined; return this; },
+      toConstant(value: any) { data.class = undefined; data.value = value; },
       transient() { data.scope = 'transient'; }
     };
   };
