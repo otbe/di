@@ -22,7 +22,7 @@ export interface InjectorMetaData {
 }
 
 export function createBinder(addBinding: (identifier: Identifier<any>, data: InjectorMetaData) => void): Binder {
-  return <T>(identifier: new () => T | string | symbol) => {
+  return <T>(identifier: Identifier<T>) => {
     const data: InjectorMetaData = { scope: 'singleton' };
     addBinding(identifier, data);
 
@@ -31,8 +31,8 @@ export function createBinder(addBinding: (identifier: Identifier<any>, data: Inj
     }
 
     return {
-      to(dep: new () => T) { data.class = dep; return this; },
-      toFactory<T>(dep: () => T) { data.factory = dep;  data.class = undefined; return this; },
+      to<S extends T>(dep: Newable<S>) { data.class = dep; return this; },
+      toFactory<S extends T>(dep: () => S) { data.factory = dep;  data.class = undefined; return this; },
       toConstant(value: any) { data.class = undefined; data.value = value; },
       transient() { data.scope = 'transient'; }
     };
