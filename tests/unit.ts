@@ -1,7 +1,9 @@
-import expect from 'expect';
+import 'reflect-metadata';
+import 'babel-polyfill';
+import * as expect from 'expect';
 import { Injector, Binder, Module, inject } from '../src/index';
 
-describe('stupid-di', () => {
+describe('di', () => {
   it('simple', () => {
     class Test {
       sayHi() { return 'hi'; }

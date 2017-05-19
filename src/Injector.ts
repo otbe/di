@@ -10,7 +10,7 @@ export type Identifier<T> = Newable<T> | string | symbol;
 export const INJECTION_MAP = Symbol();
 
 export class Injector {
-  private staticInjectionMap = new WeakMap();
+  private staticInjections = new Map<InjectorMetaData, any>();
   private bindings = new Map<Identifier<any>, InjectorMetaData>();
 
   static getInjector(module: Module) {
@@ -31,11 +31,11 @@ export class Injector {
     if (data.scope === 'transient') {
       return this.resolve(data);
     } else if (data.scope === 'singleton') {
-      if (!this.staticInjectionMap.has(data)) {
-        this.staticInjectionMap.set(data, this.resolve(data));
+      if (!this.staticInjections.has(data)) {
+        this.staticInjections.set(data, this.resolve(data));
       }
 
-      return this.staticInjectionMap.get(data);
+      return this.staticInjections.get(data);
     }
 
     throw 'not supported';
@@ -55,7 +55,7 @@ export class Injector {
     const s = Reflect.getMetadata(INJECTION_MAP, Class) || [];
 
     const instance = new Class(...s.map(this.get.bind(this)));
-    Reflect.defineProperty(instance as any, '__injector', { configurable: false, writable: false, enumerable: false, value: this });
+    Object.defineProperty(instance as any, '__injector', { configurable: false, writable: false, enumerable: false, value: this });
 
     return instance;
   }

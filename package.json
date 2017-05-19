@@ -1,40 +1,40 @@
 {
-  "name": "ts-di",
+  "name": "di",
   "version": "0.0.0",
-  "description": "Takes a snapshot of a folder",
+  "private": true,
+  "description": "Stupid simple DI written for TypeScript",
   "main": "dist/index.js",
-  "typings": "dist/src/index.d.ts",
+  "typings": "dist-release/src/index.d.ts",
   "ws": {
-    "type": "node"
+    "type": "browser"
   },
   "scripts": {
-    "build": "yarn run ws b",
+    "build": "yarn run ws -- b -p",
     "test": "yarn run ws lint && yarn run ws unit",
     "preversion": "yarn run test",
     "postversion": "git push && git push --tags"
   },
   "keywords": [
-    "test",
-    "snapshot",
-    "dir",
-    "folder",
-    "hash"
+    "TypeScript",
+    "dependency",
+    "injection"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/otbe/snapshot-dir.git"
+    "url": "git+https://github.com/otbe/di.git"
   },
   "author": "Benjamin Otto",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/otbe/snapshot-dir/issues"
+    "url": "https://github.com/otbe/di/issues"
   },
-  "homepage": "https://github.com/otbe/snapshot-dir#readme",
+  "homepage": "https://github.com/otbe/di#readme",
   "dependencies": {},
   "devDependencies": {
     "@mercateo/ws": "^1.0.2",
     "@types/expect": "^1.20.1",
     "@types/mocha": "^2.2.41",
+    "babel-polyfill": "^6.23.0",
     "expect": "^1.20.2",
     "mocha": "^3.3.0",
     "reflect-metadata": "^0.1.10"

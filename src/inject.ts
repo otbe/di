@@ -23,7 +23,7 @@ export function inject(named?: Identifier<any> | Array<Identifier<any>>) {
         const propertyKey = args[1];
         const type = named || Reflect.getMetadata('design:type', target, propertyKey!);
 
-        Reflect.defineProperty(target, propertyKey!, {
+        Object.defineProperty(target, propertyKey!, {
           configurable: false,
           enumerable: false,
           get() {

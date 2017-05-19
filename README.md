@@ -1,25 +1,68 @@
-# snapshot-dir
-[![Build Status](https://travis-ci.org/otbe/snapshot-dir.svg?branch=master)](https://travis-ci.org/otbe/snapshot-dir)
+# [WIP] di (insert fancy name here)
+Simple DI framework written in and for TypeScript.
+## Setup
+Make sure your ```tsconfig.json``` contains
 
-Every now and then I need a little tool which takes a snapshot of a folder and compares it to an older one. Imagine we program a build/bundler tool which uses this technqiue to ensure 	integrity after changes to the core.
-
-*snapshot-dir* exports four functions to generate and compare snapshots.
-
-## API
-### snapshot
+```json
+{
+  "experimentalDecorators": true,
+  "emitDecoratorMetadata": true
+}
 ```
-snapshot(path: string): Promise<SnapshotResult>
-```
-Generates a snapshot from a given ```path```. The result is an object with filenames as keys and hashs as values.
 
-### snapshotCompare
-```
-snapshotCompare(path: string, currentSnap: SnapshotResult): Promise<IDiff>
-```
-Compares a given ```path``` with a given ```currentSnap``` and returns a [deep-diff](https://www.npmjs.com/package/deep-diff#simple-examples) result object, which is undefined for no diff or a changeset.
+Install ```reflect-metadata``` and include it somewhere.
 
-### snapshotSync
-Same as ```snapshot``` but sync.
+Make sure your setup supports Maps and Symbols.
 
-### snapshotCompareSync
-Same as ```snapshotCompare``` but sync.
+## Example
+### Constructor injection
+```typescript
+class Service {
+  sayHi() { return 'hi'; }
+}
+
+@inject()
+class Test {
+  constructor(service: Service) {
+    service.sayHi();
+  }
+}
+
+class MyModule implements Module {
+  init(bind: Binder) {
+    bind(Service).transient(); // transient scope
+    bind(Test); // singleton scope
+  }
+}
+
+const injector = Injector.getInjector(new MyModule());
+const test = injector.get(Test);
+```
+
+### Property injection
+```typescript
+class Service {
+  sayHi() { return 'hi'; }
+}
+
+class Test {
+  @inject()
+  private service: Service;
+
+  sayHelloToService() {
+    return this.service.sayHi();
+  }
+}
+
+class MyModule implements Module {
+  init(bind: Binder) {
+    bind(Service).transient(); // transient scope
+    bind(Test); // singleton scope
+  }
+}
+
+const injector = Injector.getInjector(new MyModule());
+const test = injector.get(Test);
+```
+
+See ```tests/``` for more complex examples and API.
