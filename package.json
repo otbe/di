@@ -1,9 +1,9 @@
 {
-  "name": "di",
+  "name": "ts-di",
   "version": "0.0.0",
   "private": true,
   "description": "Stupid simple DI written for TypeScript",
-  "main": "dist/index.js",
+  "main": "dist-release/index.js",
   "typings": "dist-release/src/index.d.ts",
   "ws": {
     "type": "browser"
