@@ -3,7 +3,7 @@ import 'babel-polyfill';
 import * as expect from 'expect';
 import { Injector, Binder, Module, inject } from '../src/index';
 
-describe('di', () => {
+describe('simple-ts-di', () => {
   it('simple', () => {
     class Test {
       sayHi() {
