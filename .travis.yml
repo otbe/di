@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+- '6'
+- '7'
+- '8'
+cache:
+  yarn: true
+  directories:
+  - node_modules
+script: yarn run test
+before_deploy:
+- yarn run build
+deploy:
+  provider: npm
+  email: benjamin.otto@style-systems.de
+  api_key:
+    secure: q80nbyNgfkAKcJddLcm8Q7YD0ORwC8XgvaKVb8Kh8plnLnCJBBDPggThpoFwioT0WZml0yGLOMS888gfNMpv7yitW7Mz+8Oi3Qz2Robduq/3/cWf2O7bpn60uY5FyRqfjcj++X/jmeYSmAS7vzj9Fm4TJzx5lWAD+eY/NFBUwXEJPfSigIa9tFsQyq+66mYkQL9w8NoYLTZkgXS1PfImRrQMpTAu9OG+Ak+R+ExVJkfauHuLyoOSvv7KWFGlQxZjQD+MLfRjpB/zR2880sNOX1tOCcd6AcsXzoG6hb6QHNVIi4aD2Jyc1n31OhGgRi/cpE5ywTbvzHBu8OEEBvHHBp/DWx8fdu4QOKjxkdh60i6kwSTHVlHP8juaUkW0OvqarPjmc02FO7FS2UZLlJxAbgzRYFhXBCjJrP6YD8+MyjIUS+I72VlmCl9xUuDK42fJxaOHPytyFtaR8Wkb1eiKcga+4TQ5Vvf+Zl29fyDDTtbKIfBbT/ozHXyMfW8FSM1MOt/QDbLIr057gKIEGhKDiIv0w67+dFpQeiS/59B1+okX5k5IDbteZ7b1b3zlA6e4xncKoiY+03iDZWU4Cl+Yk4NSYxplhbX2rKow6SbpF6iTYB/Jh5DWr2UK7F8ZVJHAhv0WLmHihSw+TEM+s/cSsfXh51rlyB6z+QUha2yQ5jU=
+  on:
+    tags: true
+    repo: otbe/di
