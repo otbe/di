@@ -6,7 +6,9 @@ import { Injector, Binder, Module, inject } from '../src/index';
 describe('di', () => {
   it('simple', () => {
     class Test {
-      sayHi() { return 'hi'; }
+      sayHi() {
+        return 'hi';
+      }
     }
 
     class MyModule implements Module {
@@ -26,17 +28,20 @@ describe('di', () => {
 
   it('sub dependencies', () => {
     class Service {
-      sayHi() { return 'hi'; }
+      sayHi() {
+        return 'hi';
+      }
     }
 
     class Service2 {
-      sayHi() { return 'hi2'; }
+      sayHi() {
+        return 'hi2';
+      }
     }
 
     @inject()
     class Test {
-      @inject()
-      private service: Service;
+      @inject() private service: Service;
 
       private service2: Service2;
 
@@ -71,18 +76,21 @@ describe('di', () => {
 
   it('bind to', () => {
     class Service {
-      sayHi() { return 'hi'; }
+      sayHi() {
+        return 'hi';
+      }
     }
 
     class Service2 {
       private greeting = 'hi2';
 
-      sayHi() { return this.greeting; }
+      sayHi() {
+        return this.greeting;
+      }
     }
 
     class Test {
-      @inject()
-      service: Service;
+      @inject() service: Service;
 
       sayServiceHi() {
         return this.service.sayHi();
@@ -116,12 +124,13 @@ describe('di', () => {
         this.sectret = secret;
       }
 
-      getSecret() { return this.sectret; }
+      getSecret() {
+        return this.sectret;
+      }
     }
 
     class Test {
-      @inject()
-      service: Service;
+      @inject() service: Service;
 
       getSecret() {
         return this.service.getSecret();
@@ -150,8 +159,7 @@ describe('di', () => {
     const identifier = 'constantValue';
 
     class Test {
-      @inject(identifier)
-      number: number;
+      @inject(identifier) number: number;
 
       getNumber() {
         return this.number;
@@ -182,8 +190,7 @@ describe('di', () => {
 
     @inject([foo])
     class Test {
-      @inject(foo)
-      secret: string;
+      @inject(foo) secret: string;
 
       constructor(secret: string, service: Service) {
         expect(secret).toBe('bar');

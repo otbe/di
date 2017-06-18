@@ -1,4 +1,4 @@
-# [WIP] di (insert fancy name here)
+# simple-ts-di
 Simple DI framework written in and for TypeScript.
 ## Setup
 Make sure your ```tsconfig.json``` contains

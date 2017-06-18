@@ -16,7 +16,11 @@ export class Injector {
   static getInjector(module: Module) {
     const injector = new Injector();
 
-    module.init(createBinder((identifier, data) => injector.bindings.set(identifier, data)));
+    module.init(
+      createBinder((identifier, data) =>
+        injector.bindings.set(identifier, data)
+      )
+    );
 
     return injector;
   }
@@ -55,7 +59,12 @@ export class Injector {
     const s = Reflect.getMetadata(INJECTION_MAP, Class) || [];
 
     const instance = new Class(...s.map(this.get.bind(this)));
-    Object.defineProperty(instance as any, '__injector', { configurable: false, writable: false, enumerable: false, value: this });
+    Object.defineProperty(instance, '__injector', {
+      configurable: false,
+      writable: false,
+      enumerable: false,
+      value: this
+    });
 
     return instance;
   }

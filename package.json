@@ -1,8 +1,8 @@
 {
-  "name": "ts-di",
+  "name": "simple-ts-di",
   "version": "0.0.0",
   "private": true,
-  "description": "Stupid simple DI written for TypeScript",
+  "description": "Simple DI written for TypeScript, no deps",
   "main": "dist-release/index.js",
   "typings": "dist-release/src/index.d.ts",
   "ws": {
@@ -17,7 +17,8 @@
   "keywords": [
     "TypeScript",
     "dependency",
-    "injection"
+    "injection",
+    "DI"
   ],
   "repository": {
     "type": "git",
@@ -31,7 +32,7 @@
   "homepage": "https://github.com/otbe/di#readme",
   "dependencies": {},
   "devDependencies": {
-    "@mercateo/ws": "^1.0.2",
+    "@mercateo/ws": "^2.0.0-4",
     "@types/expect": "^1.20.1",
     "@types/mocha": "^2.2.41",
     "babel-polyfill": "^6.23.0",
