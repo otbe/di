@@ -16,11 +16,7 @@ export class Injector {
   static getInjector(module: Module) {
     const injector = new Injector();
 
-    module.init(
-      createBinder((identifier, data) =>
-        injector.bindings.set(identifier, data)
-      )
-    );
+    module.init(createBinder(injector.bindings.set.bind(injector.bindings)));
 
     return injector;
   }
@@ -29,7 +25,7 @@ export class Injector {
     const data = this.bindings.get(identifier);
 
     if (data == null) {
-      throw new Error('no binding found');
+      throw new Error(`no binding found for ${identifier} found`);
     }
 
     if (data.scope === 'transient') {
