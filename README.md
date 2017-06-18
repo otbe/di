@@ -1,5 +1,6 @@
 # simple-ts-di
 [![Build Status](https://travis-ci.org/otbe/di.svg?branch=master)](https://travis-ci.org/otbe/di)
+
 Simple DI framework written in and for TypeScript.
 ## Setup
 Make sure your ```tsconfig.json``` contains
