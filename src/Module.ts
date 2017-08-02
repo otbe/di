@@ -1,5 +1,5 @@
-import { Binder } from './Binder';
+import { Bind } from './Binder';
 
 export interface Module {
-  init: (bind: Binder) => void;
+  init(bind: Bind): void;
 }

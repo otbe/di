@@ -1,4 +1,4 @@
-import { Identifier, Newable } from './Injector';
+import { Identifier, Newable } from './Container';
 
 export interface FinalBinder {
   transient(): void;
@@ -7,28 +7,33 @@ export interface FinalBinder {
 export interface ResolveBinder<T> extends FinalBinder {
   to<S extends T>(dep: Newable<S>): FinalBinder;
   toFactory<S extends T>(dep: () => S): FinalBinder;
-  toConstant(value: any): void;
+  toValue(value: any): void;
 }
 
-export interface Binder {
+export interface Bind {
   <T>(identifier: Identifier<T>): ResolveBinder<T>;
 }
 
 export interface InjectorMetaData {
   scope: 'transient' | 'singleton';
   class?: Newable<any>;
-  factory?: <T>() => T;
+  factory?: () => any;
   value?: any;
 }
 
 export function createBinder(
-  addBinding: (identifier: Identifier<any>, data: InjectorMetaData) => void
-): Binder {
+  addBinding: (identifier: Identifier<any>, data: InjectorMetaData) => void,
+  exists: (identifier: Identifier<any>) => boolean
+): Bind {
   return <T>(identifier: Identifier<T>) => {
+    if (exists(identifier)) {
+      throw `${identifier} already bound`;
+    }
+
     const data: InjectorMetaData = { scope: 'singleton' };
     addBinding(identifier, data);
 
-    if (typeof identifier !== 'string' && typeof identifier !== 'symbol') {
+    if (typeof identifier !== 'symbol') {
       data.class = identifier;
     }
 
@@ -42,7 +47,7 @@ export function createBinder(
         data.class = undefined;
         return this;
       },
-      toConstant(value: any) {
+      toValue(value: any) {
         data.class = undefined;
         data.value = value;
       },

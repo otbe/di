@@ -2,6 +2,8 @@
 [![Build Status](https://travis-ci.org/otbe/di.svg?branch=master)](https://travis-ci.org/otbe/di)
 
 Simple DI framework written in and for TypeScript.
+By default all bindings are in singleton scope. Where possible you can call a ```transient()``` binder function to create a transient binding.
+
 ## Setup
 Make sure your ```tsconfig.json``` contains
 
@@ -31,17 +33,20 @@ class Test {
 }
 
 class MyModule implements Module {
-  init(bind: Binder) {
+  init(bind: Bind) {
     bind(Service).transient(); // transient scope
     bind(Test); // singleton scope
+                // shortcut for bind(Test).to(Test)
   }
 }
 
-const injector = Injector.getInjector(new MyModule());
-const test = injector.get(Test);
+const container = new Container(new MyModule());
+const test = container.get(Test);
 ```
 
 ### Property injection
+```simple-ts-di``` supports property injection. It will only work if the type (here ```Service```) has a meaningful runtime representation. So it only works for classes (as of now). If you want to inject some primitives or a service which implements an interface you have to use named injection.
+
 ```typescript
 class Service {
   sayHi() { return 'hi'; }
@@ -57,14 +62,52 @@ class Test {
 }
 
 class MyModule implements Module {
-  init(bind: Binder) {
+  init(bind: Bind) {
     bind(Service).transient(); // transient scope
     bind(Test); // singleton scope
+                // shortcut for bind(Test).to(Test)
   }
 }
 
-const injector = Injector.getInjector(new MyModule());
-const test = injector.get(Test);
+const container = new Container(new MyModule());
+const test = container.get(Test);
+```
+
+### named injection
+```typescript
+const SERVICE = Symbol();
+const PRIMITIVE = Symbol();
+
+interface IService {
+  sayHi(): string;
+}
+
+class Service implements IService {
+  sayHi() { return 'hi'; }
+}
+
+@inject([SERVICE, PRIMITIVE])
+class Test {
+  @inject(SERVICE)
+  private service: IService;
+
+  @inject(PRIMITIVE)
+  private primitive: number;
+
+  constructor(service: IService, primitive: number) {
+  }
+}
+
+class MyModule implements Module {
+  init(bind: Bind) {
+    bind(SERVICE).to(Service);
+    bind(PRIMITIVE).toValue(10);
+    bind(Test);
+  }
+}
+
+const container = new Container(new MyModule());
+const test = container.get(Test);
 ```
 
 See ```tests/``` for more complex examples and API.

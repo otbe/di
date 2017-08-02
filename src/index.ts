@@ -1,4 +1,4 @@
-export { Injector } from './Injector';
+export { Container } from './Container';
 export { inject } from './inject';
 export { Module } from './Module';
-export { Binder } from './Binder';
+export { Bind } from './Binder';

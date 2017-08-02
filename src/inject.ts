@@ -1,4 +1,9 @@
-import { Identifier, INJECTION_MAP, Injector } from './Injector';
+import {
+  Identifier,
+  INJECTION_MAP,
+  Container,
+  CONTAINER_PROP
+} from './Container';
 
 export function inject(named?: Identifier<any> | Array<Identifier<any>>) {
   return (...args: any[]) => {
@@ -28,30 +33,29 @@ export function inject(named?: Identifier<any> | Array<Identifier<any>>) {
         }
 
         const propertyKey = args[1];
-        const type =
+        const identifier: Identifier<any> =
           named || Reflect.getMetadata('design:type', target, propertyKey!);
 
-        Object.defineProperty(target, propertyKey!, {
+        Object.defineProperty(target, propertyKey, {
           configurable: false,
           enumerable: false,
           get() {
-            const injector: Injector | undefined = this.__injector;
-            if (injector == null) {
-              throw new Error(
-                'You can not use field injected dependencies in class constrcutor'
-              );
+            const container: Container | undefined = this[CONTAINER_PROP];
+
+            if (container == null) {
+              throw 'You can not use field injected dependencies in class constrcutor';
             }
 
-            return injector.get(type);
+            return container.get(identifier);
           },
           set() {
-            throw new Error('setter not supported');
+            throw 'setter not supported';
           }
         });
         return;
     }
 
-    throw 'not supported2';
+    throw 'not supported target for @inject';
   };
 }
 
