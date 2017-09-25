@@ -1,8 +1,13 @@
 import 'reflect-metadata';
 import 'babel-polyfill';
 import * as expect from 'expect';
-import { Container, Bind, Module, inject } from '../src/index';
-import { createUncontrolledInject } from '../src/createUncontrolledInject';
+import {
+  Container,
+  Bind,
+  Module,
+  inject,
+  createUncontrolledInject
+} from '../src/index';
 
 describe('simple-ts-di', () => {
   it('unbind and rebind', () => {
