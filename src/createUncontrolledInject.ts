@@ -1,4 +1,4 @@
-import { Identifier, Container } from './Container';
+import { Identifier, Container, Newable } from './Container';
 import { inject } from './inject';
 
 export const createUncontrolledInject = (container: Container) =>

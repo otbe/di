@@ -13,12 +13,7 @@
     "preversion": "yarn run test",
     "postversion": "git push && git push --tags"
   },
-  "keywords": [
-    "TypeScript",
-    "dependency",
-    "injection",
-    "DI"
-  ],
+  "keywords": ["TypeScript", "dependency", "injection", "DI"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/otbe/di.git"
