@@ -1,6 +1,6 @@
 {
   "name": "simple-ts-di",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Simple DI written for TypeScript, no deps",
   "main": "dist-release/index.js",
   "typings": "dist-release/src/index.d.ts",
@@ -13,7 +13,12 @@
     "preversion": "yarn run test",
     "postversion": "git push && git push --tags"
   },
-  "keywords": ["TypeScript", "dependency", "injection", "DI"],
+  "keywords": [
+    "TypeScript",
+    "dependency",
+    "injection",
+    "DI"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/otbe/di.git"
