@@ -140,6 +140,30 @@ describe('simple-ts-di', () => {
     expect(t2.sayHi()).toBe('hi');
   });
 
+  it('should return the same service for multiple hits of a property injected dep', () => {
+    class Service {
+      sayHi() {
+        return 'hi';
+      }
+    }
+
+    class Test {
+      @inject() service: Service;
+    }
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Service).transient();
+        bind(Test);
+      }
+    }
+
+    const s = new Container(new MyModule());
+    const t1 = s.get(Test);
+
+    expect(t1.service).toBe(t1.service);
+  });
+
   it('sub dependencies', () => {
     class Service {
       sayHi() {

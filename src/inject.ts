@@ -5,6 +5,8 @@ import {
   CONTAINER_PROP
 } from './Container';
 
+const INJECTED_DEP = Symbol();
+
 export function inject(
   named?: Identifier<any> | Array<Identifier<any>>,
   container?: Container
@@ -43,13 +45,23 @@ export function inject(
           configurable: false,
           enumerable: false,
           get() {
-            const c: Container | undefined = container || this[CONTAINER_PROP];
+            if (!Reflect.hasMetadata(INJECTED_DEP, target, propertyKey)) {
+              const c: Container | undefined =
+                container || this[CONTAINER_PROP];
 
-            if (c == null) {
-              throw 'You can not use field injected dependencies in class constrcutor';
+              if (c == null) {
+                throw 'You can not use field injected dependencies in class constrcutor';
+              }
+
+              Reflect.defineMetadata(
+                INJECTED_DEP,
+                c.get(identifier),
+                target,
+                propertyKey
+              );
             }
 
-            return c.get(identifier);
+            return Reflect.getMetadata(INJECTED_DEP, target, propertyKey);
           },
           set() {
             throw 'setter not supported';
