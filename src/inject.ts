@@ -26,7 +26,7 @@ export function inject(
         );
         Reflect.defineMetadata(
           INJECTION_MAP,
-          merge(constructorTypes, named || []),
+          merge(constructorTypes || [], named || []),
           target
         );
         return;
