@@ -45,7 +45,7 @@ export function inject(
           configurable: false,
           enumerable: false,
           get() {
-            if (!Reflect.hasMetadata(INJECTED_DEP, target, propertyKey)) {
+            if (!Reflect.hasMetadata(INJECTED_DEP, this, propertyKey)) {
               const c: Container | undefined =
                 container || this[CONTAINER_PROP];
 
@@ -56,12 +56,12 @@ export function inject(
               Reflect.defineMetadata(
                 INJECTED_DEP,
                 c.get(identifier),
-                target,
+                this,
                 propertyKey
               );
             }
 
-            return Reflect.getMetadata(INJECTED_DEP, target, propertyKey);
+            return Reflect.getMetadata(INJECTED_DEP, this, propertyKey);
           },
           set() {
             throw 'setter not supported';
