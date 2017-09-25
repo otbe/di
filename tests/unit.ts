@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import 'babel-polyfill';
 import * as expect from 'expect';
 import { Container, Bind, Module, inject } from '../src/index';
+import { createUncontrolledInject } from '../src/createUncontrolledInject';
 
 describe('simple-ts-di', () => {
   it('unbind and rebind', () => {
@@ -207,7 +208,9 @@ describe('simple-ts-di', () => {
 
     class MyModule implements Module {
       init(bind: Bind) {
-        bind(Service).to(Service2).transient();
+        bind(Service)
+          .to(Service2)
+          .transient();
         bind(Test);
       }
     }
@@ -248,7 +251,9 @@ describe('simple-ts-di', () => {
     class MyModule implements Module {
       init(bind: Bind) {
         bind(Test);
-        bind(Service).toFactory(() => new Service('foo')).transient();
+        bind(Service)
+          .toFactory(() => new Service('foo'))
+          .transient();
       }
     }
 
@@ -326,5 +331,30 @@ describe('simple-ts-di', () => {
 
     expect(test.primitive).toBe(10);
     expect(test.service.sayHi()).toBe('hi');
+  });
+
+  it('uncrontrolled inject', () => {
+    class Service {
+      sayHi() {
+        return 'hi';
+      }
+    }
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Service);
+      }
+    }
+
+    const container = new Container(new MyModule());
+    const uncontrolledInject = createUncontrolledInject(container);
+
+    class Test {
+      @uncontrolledInject() service: Service;
+    }
+
+    const t = new Test();
+
+    expect(t.service.sayHi()).toBe('hi');
   });
 });

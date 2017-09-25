@@ -45,7 +45,7 @@ const test = container.get(Test);
 ```
 
 ### Property injection
-```simple-ts-di``` supports property injection. It will only work if the type (here ```Service```) has a meaningful runtime representation. So it only works for classes (as of now). If you want to inject some primitives or a service which implements an interface you have to use named injection.
+```simple-ts-di``` supports property injection. It will only work if the type (here ```Service```) has a meaningful runtime representation. So it only works for classes (as of now). If you want to inject some primitives or a service which implements an interface you have to use named injection. If your environment dont let you control how the class is instantiated (e.g. react components are instantiated by react and not via container.get(...)), you can use an special version of inject - uncontrolledInject. See "uncontrolled property injection".
 
 ```typescript
 class Service {
@@ -108,6 +108,32 @@ class MyModule implements Module {
 
 const container = new Container(new MyModule());
 const test = container.get(Test);
+```
+
+### uncontrolled property injection
+```typescript
+class Service {
+  sayHi() {
+    return 'hi';
+  }
+}
+
+class MyModule implements Module {
+  init(bind: Bind) {
+    bind(Service);
+  }
+}
+
+const container = new Container(new MyModule());
+const uncontrolledInject = createUncontrolledInject(container);
+
+class Test {
+  @uncontrolledInject() service: Service;
+}
+
+const t = new Test();
+
+t.service.sayHi(); // returns Hi
 ```
 
 See ```tests/``` for more complex examples and API.

@@ -5,7 +5,10 @@ import {
   CONTAINER_PROP
 } from './Container';
 
-export function inject(named?: Identifier<any> | Array<Identifier<any>>) {
+export function inject(
+  named?: Identifier<any> | Array<Identifier<any>>,
+  container?: Container
+) {
   return (...args: any[]) => {
     const target = args[0];
     switch (args.length) {
@@ -40,13 +43,13 @@ export function inject(named?: Identifier<any> | Array<Identifier<any>>) {
           configurable: false,
           enumerable: false,
           get() {
-            const container: Container | undefined = this[CONTAINER_PROP];
+            const c: Container | undefined = container || this[CONTAINER_PROP];
 
-            if (container == null) {
+            if (c == null) {
               throw 'You can not use field injected dependencies in class constrcutor';
             }
 
-            return container.get(identifier);
+            return c.get(identifier);
           },
           set() {
             throw 'setter not supported';

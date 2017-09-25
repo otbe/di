@@ -25,7 +25,7 @@ export function createBinder(
   addBinding: (identifier: Identifier<any>, data: InjectorMetaData) => void,
   exists: (identifier: Identifier<any>) => boolean
 ): Bind {
-  return <T>(identifier: Identifier<T>) => {
+  return function<T>(identifier: Identifier<T>) {
     if (exists(identifier)) {
       throw `${identifier} already bound`;
     }
