@@ -1,6 +1,6 @@
 {
   "name": "simple-ts-di",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Simple DI written for TypeScript, no deps",
   "main": "dist-release/index.js",
   "typings": "dist-release/src/index.d.ts",
