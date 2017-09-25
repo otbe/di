@@ -1,5 +1,6 @@
-import { Identifier, Container, Newable } from './Container';
+import { Identifier, Container } from './Container';
 import { inject } from './inject';
+export { Newable } from './Container';
 
 export const createUncontrolledInject = (container: Container) =>
   function(named?: Identifier<any> | Array<Identifier<any>>) {
