@@ -6,7 +6,7 @@ import {
   Bind,
   Module,
   inject,
-  createUncontrolledInject
+  createBoundedInject
 } from '../src/index';
 
 describe('simple-ts-di', () => {
@@ -362,7 +362,7 @@ describe('simple-ts-di', () => {
     expect(test.service.sayHi()).toBe('hi');
   });
 
-  it('uncrontrolled inject', () => {
+  it('bounded inject', () => {
     class Service {
       sayHi() {
         return 'hi';
@@ -376,10 +376,10 @@ describe('simple-ts-di', () => {
     }
 
     const container = new Container(new MyModule());
-    const uncontrolledInject = createUncontrolledInject(container);
+    const bInject = createBoundedInject(container);
 
     class Test {
-      @uncontrolledInject() service: Service;
+      @bInject() service: Service;
     }
 
     const t = new Test();

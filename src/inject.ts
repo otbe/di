@@ -2,7 +2,8 @@ import {
   Identifier,
   INJECTION_MAP,
   Container,
-  CONTAINER_PROP
+  CONTAINER_PROP,
+  Newable
 } from './Container';
 
 const INJECTED_DEP = Symbol();
@@ -73,6 +74,10 @@ export function inject(
     throw 'not supported target for @inject';
   };
 }
+
+export const createBoundedInject = (container: Container) => (
+  named?: Identifier<any> | Array<Identifier<any>>
+) => inject(named, container);
 
 function merge(arr1: Array<any>, arr2: Array<any>): Array<any> {
   return arr2.reduce(
