@@ -6,7 +6,7 @@ export interface FinalBinder {
 
 export interface ResolveBinder<T> extends FinalBinder {
   to<S extends T>(dep: Newable<S>): FinalBinder;
-  toFactory<S extends T>(dep: () => S): FinalBinder;
+  toFactory<S extends T>(dep: () => Promise<S> | S): FinalBinder;
   toValue(value: any): void;
 }
 
@@ -27,7 +27,7 @@ export function createBinder(
 ): Bind {
   return function<T>(identifier: Identifier<T>) {
     if (exists(identifier)) {
-      throw `${identifier} already bound`;
+      throw `${identifier.toString()} already bound`;
     }
 
     const data: InjectorMetaData = { scope: 'singleton' };
@@ -42,7 +42,7 @@ export function createBinder(
         data.class = dep;
         return this;
       },
-      toFactory<S extends T>(dep: () => S) {
+      toFactory<S extends T>(dep: () => Promise<S> | S) {
         data.factory = dep;
         data.class = undefined;
         return this;

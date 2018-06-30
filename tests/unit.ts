@@ -1,16 +1,8 @@
 import 'reflect-metadata';
-import 'babel-polyfill';
-import * as expect from 'expect';
-import {
-  Container,
-  Bind,
-  Module,
-  inject,
-  createBoundedInject
-} from '../src/index';
+import { Container, Bind, Module, inject } from '../src/index';
 
 describe('simple-ts-di', () => {
-  it('unbind and rebind', () => {
+  it('unbind and rebind', async () => {
     class Test {
       sayHi() {
         return 'hi';
@@ -30,22 +22,22 @@ describe('simple-ts-di', () => {
     }
 
     const s = new Container(new MyModule());
-    const t1 = s.get(Test);
-    const t2 = s.get(Test);
+    const t1 = await s.get(Test);
+    const t2 = await s.get(Test);
     expect(t1).toBe(t2);
 
     s.unbind(Test);
 
     expect(s.isBound(Test)).toBeFalsy();
-    expect(() => s.get<Test>(Test)).toThrow();
+    expect(s.get<Test>(Test)).rejects.toThrow();
 
     s.bind(Test).to(Test2);
 
     expect(s.isBound(Test)).toBeTruthy();
 
-    const r1 = s.get<Test2>(Test);
+    const r1 = await s.get<Test2>(Test);
 
-    expect(r1).toBeA(Test2);
+    expect(r1).toBeInstanceOf(Test2);
   });
 
   it('snapshot/restore', () => {
@@ -112,13 +104,13 @@ describe('simple-ts-di', () => {
 
     const c = new Container(new MyModule(), new MyModule2());
 
-    expect(c.get(Test)).toBeTruthy();
-    expect(c.get(Test2)).toBeTruthy();
+    expect(c.get(Test)).resolves.toBeTruthy();
+    expect(c.get(Test2)).resolves.toBeTruthy();
 
     expect(() => new Container(new MyModule(), new MyModule())).toThrow();
   });
 
-  it('simple', () => {
+  it('simple', async () => {
     class Test {
       sayHi() {
         return 'hi';
@@ -132,62 +124,33 @@ describe('simple-ts-di', () => {
     }
 
     const s = new Container(new MyModule());
-    const t1 = s.get(Test);
-    const t2 = s.get(Test);
+    const t1 = await s.get(Test);
+    const t2 = await s.get(Test);
     expect(t1).toBe(t2);
 
     expect(t1.sayHi()).toBe('hi');
     expect(t2.sayHi()).toBe('hi');
   });
 
-  it('should return the same service for multiple hits of a property injected dep', () => {
+  it('sub dependencies', async () => {
     class Service {
       sayHi() {
         return 'hi';
       }
     }
 
-    class Test {
-      @inject() service: Service;
-    }
-
-    class MyModule implements Module {
-      init(bind: Bind) {
-        bind(Service).transient();
-        bind(Test);
-      }
-    }
-
-    const s = new Container(new MyModule());
-    const t1 = s.get(Test);
-
-    expect(t1.service).toBe(t1.service);
-  });
-
-  it('sub dependencies', () => {
-    class Service {
-      sayHi() {
-        return 'hi';
-      }
-    }
-
+    @inject()
     class Service2 {
+      constructor(private readonly service: Service) {}
+
       sayHi() {
-        return 'hi2';
+        return this.service.sayHi();
       }
     }
 
     @inject()
     class Test {
-      @inject() private service: Service;
-
-      private service2: Service2;
-
-      constructor(service: Service2) {
-        this.service2 = service;
-        expect(() => this.service.sayHi()).toThrow();
-        expect(this.service2.sayHi()).toBe('hi2');
-      }
+      constructor(private readonly service: Service2) {}
 
       sayServiceHi() {
         return this.service.sayHi();
@@ -204,15 +167,15 @@ describe('simple-ts-di', () => {
 
     const s = new Container(new MyModule());
 
-    const t1 = s.get(Test);
+    const t1 = await s.get(Test);
     expect(t1.sayServiceHi()).toBe('hi');
 
-    const s1 = s.get(Service);
-    const s2 = s.get(Service);
-    expect(s1).toNotBe(s2);
+    const s1 = await s.get(Service);
+    const s2 = await s.get(Service);
+    expect(s1).not.toBe(s2);
   });
 
-  it('bind to', () => {
+  it('bind to', async () => {
     class Service {
       sayHi() {
         return 'hi';
@@ -227,8 +190,9 @@ describe('simple-ts-di', () => {
       }
     }
 
+    @inject()
     class Test {
-      @inject() service: Service;
+      constructor(public service: Service) {}
 
       sayServiceHi() {
         return this.service.sayHi();
@@ -246,17 +210,17 @@ describe('simple-ts-di', () => {
 
     const s = new Container(new MyModule());
 
-    const t1 = s.get(Test);
-    expect(t1.service).toBeA(Service2);
+    const t1 = await s.get(Test);
+    expect(t1.service).toBeInstanceOf(Service2);
     expect(t1.sayServiceHi()).toBe('hi2');
 
-    const s1 = s.get(Service);
-    const s2 = s.get(Service);
-    expect(s1).toNotBe(s2);
-    expect(s1).toBeA(Service2);
+    const s1 = await s.get(Service);
+    const s2 = await s.get(Service);
+    expect(s1).not.toBe(s2);
+    expect(s1).toBeInstanceOf(Service2);
   });
 
-  it('factory', () => {
+  it('factory', async () => {
     class Service {
       private sectret: string;
 
@@ -269,8 +233,9 @@ describe('simple-ts-di', () => {
       }
     }
 
+    @inject()
     class Test {
-      @inject() service: Service;
+      constructor(private readonly service: Service) {}
 
       getSecret() {
         return this.service.getSecret();
@@ -288,20 +253,21 @@ describe('simple-ts-di', () => {
 
     const s = new Container(new MyModule());
 
-    const t1 = s.get(Test);
+    const t1 = await s.get(Test);
     expect(t1.getSecret()).toBe('foo');
 
-    const s1 = s.get(Service);
-    const s2 = s.get(Service);
-    expect(s1).toNotBe(s2);
-    expect(s1).toBeA(Service);
+    const s1 = await s.get(Service);
+    const s2 = await s.get(Service);
+    expect(s1).not.toBe(s2);
+    expect(s1).toBeInstanceOf(Service);
   });
 
-  it('constant values', () => {
+  it('constant values', async () => {
     const identifier = Symbol('constantValue');
 
+    @inject([identifier])
     class Test {
-      @inject(identifier) number: number;
+      constructor(private readonly number: number) {}
 
       getNumber() {
         return this.number;
@@ -317,11 +283,11 @@ describe('simple-ts-di', () => {
 
     const s = new Container(new MyModule());
 
-    const t1 = s.get(Test);
+    const t1 = await s.get(Test);
     expect(t1.getNumber()).toBe(8);
   });
 
-  it('named', () => {
+  it('named', async () => {
     const SERVICE = Symbol();
     const PRIMITIVE = Symbol();
 
@@ -337,11 +303,7 @@ describe('simple-ts-di', () => {
 
     @inject([SERVICE, PRIMITIVE])
     class Test {
-      @inject(SERVICE) service: IService;
-
-      @inject(PRIMITIVE) primitive: number;
-
-      constructor(service: IService, primitive: number) {
+      constructor(public service: IService, public primitive: number) {
         expect(service.sayHi()).toBe('hi');
         expect(primitive).toBe(10);
       }
@@ -356,34 +318,98 @@ describe('simple-ts-di', () => {
     }
 
     const container = new Container(new MyModule());
-    const test = container.get(Test);
+    const test = await container.get(Test);
 
     expect(test.primitive).toBe(10);
     expect(test.service.sayHi()).toBe('hi');
   });
 
-  it('bounded inject', () => {
+  it('should only resolve things that a ask for (transitive)', async () => {
+    class Service2 {
+      sayHi() {
+        return 'hi';
+      }
+    }
+    class Service3 {}
+
+    @inject()
     class Service {
+      constructor(public service2: Service2) {}
+    }
+
+    @inject()
+    class Test {
+      constructor(public service: Service) {}
+    }
+
+    const s2Spy = jest.fn();
+    const s3Spy = jest.fn();
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Test);
+        bind(Service);
+        bind(Service2).toFactory(async () => {
+          s2Spy();
+          return await Promise.resolve(new Service2());
+        });
+        bind(Service3).toFactory(async () => {
+          s3Spy();
+          return await Promise.resolve(new Service3());
+        });
+      }
+    }
+
+    const container = new Container(new MyModule());
+    const test = await container.get(Test);
+
+    expect(s2Spy).toHaveBeenCalled();
+    expect(s3Spy).not.toHaveBeenCalled();
+    expect(test.service.service2).toBeInstanceOf(Service2);
+    expect(test.service.service2.sayHi()).toBe('hi');
+  });
+
+  it('deep resolution', async () => {
+    class Service3 {
       sayHi() {
         return 'hi';
       }
     }
 
+    @inject()
+    class Service2 {
+      constructor(public service3: Service3) {}
+    }
+
+    @inject()
+    class Service {
+      constructor(public service2: Service2) {}
+    }
+
+    @inject()
+    class Test {
+      constructor(public service: Service) {}
+    }
+
+    const s3Spy = jest.fn();
+
     class MyModule implements Module {
       init(bind: Bind) {
+        bind(Test);
         bind(Service);
+        bind(Service2);
+        bind(Service3).toFactory(async () => {
+          s3Spy();
+          return Promise.resolve(new Service3());
+        });
       }
     }
 
     const container = new Container(new MyModule());
-    const bInject = createBoundedInject(container);
+    const test = await container.get(Test);
 
-    class Test {
-      @bInject() service: Service;
-    }
-
-    const t = new Test();
-
-    expect(t.service.sayHi()).toBe('hi');
+    expect(s3Spy).toHaveBeenCalled();
+    expect(test.service.service2).toBeInstanceOf(Service2);
+    expect(test.service.service2.service3.sayHi()).toBe('hi');
   });
 });

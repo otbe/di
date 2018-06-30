@@ -8,7 +8,6 @@ export interface Newable<T> {
 export type Identifier<T> = Newable<T> | symbol;
 
 export const INJECTION_MAP = Symbol();
-export const CONTAINER_PROP = Symbol();
 
 export interface Snapshot {
   bindings: Map<Identifier<any>, InjectorMetaData>;
@@ -26,21 +25,21 @@ export class Container {
   );
 
   constructor(...modules: Array<Module>) {
-    modules.forEach(module => module.init(this._bind));
+    modules.forEach((module) => module.init(this._bind));
   }
 
-  get<T>(identifier: Identifier<T>): T {
+  async get<T>(identifier: Identifier<T>): Promise<T> {
     const data = this.bindings.get(identifier);
 
     if (data == null) {
-      throw new Error(`no binding found for ${identifier}`);
+      throw new Error(`no binding found for ${identifier.toString()}`);
     }
 
     if (data.scope === 'transient') {
-      return this.resolve(data);
+      return await this.resolve(data);
     } else if (data.scope === 'singleton') {
       if (!this.staticInjections.has(data)) {
-        this.staticInjections.set(data, this.resolve(data));
+        this.staticInjections.set(data, await this.resolve(data));
       }
 
       return this.staticInjections.get(data);
@@ -78,11 +77,11 @@ export class Container {
     this.staticInjections = snapshot.staticInjections;
   }
 
-  private resolve(data: InjectorMetaData) {
+  private async resolve(data: InjectorMetaData) {
     if (data.class != null) {
-      return this.resolveClass(data.class);
+      return await this.resolveClass(data.class);
     } else if (data.factory != null) {
-      return data.factory();
+      return await data.factory();
     } else if (data.value) {
       return data.value;
     }
@@ -90,18 +89,9 @@ export class Container {
     throw `no injection target found`;
   }
 
-  private resolveClass<T>(Class: new (...args: any[]) => T): T {
+  private async resolveClass<T>(Class: new (...args: any[]) => T): Promise<T> {
     const s = Reflect.getMetadata(INJECTION_MAP, Class) || [];
 
-    const instance = new Class(...s.map(this.get.bind(this)));
-
-    Object.defineProperty(instance, CONTAINER_PROP, {
-      configurable: false,
-      writable: false,
-      enumerable: false,
-      value: this
-    });
-
-    return instance;
+    return new Class(...(await Promise.all(s.map(this.get.bind(this)))));
   }
 }

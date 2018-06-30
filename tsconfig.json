@@ -8,8 +8,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
-    "lib": ["es5", "es2015", "dom"],
-    "types": ["mocha", "reflect-metadata"]
+    "lib": ["es6", "dom", "scripthost"],
+    "types": ["reflect-metadata"]
   },
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }
