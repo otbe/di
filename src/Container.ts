@@ -8,6 +8,7 @@ export interface Newable<T> {
 export type Identifier<T> = Newable<T> | symbol;
 
 export const INJECTION_MAP = Symbol();
+export const CONTAINER_INSTANCE_PROP = Symbol();
 
 export interface Snapshot {
   bindings: Map<Identifier<any>, InjectorMetaData>;
@@ -92,6 +93,17 @@ export class Container {
   private async resolveClass<T>(Class: new (...args: any[]) => T): Promise<T> {
     const s = Reflect.getMetadata(INJECTION_MAP, Class) || [];
 
-    return new Class(...(await Promise.all(s.map(this.get.bind(this)))));
+    const instance = new Class(
+      ...(await Promise.all(s.map(this.get.bind(this))))
+    );
+
+    Object.defineProperty(instance, CONTAINER_INSTANCE_PROP, {
+      configurable: false,
+      writable: false,
+      enumerable: false,
+      value: this
+    });
+
+    return instance;
   }
 }

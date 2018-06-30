@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { Container, Bind, Module, inject } from '../src/index';
+import {
+  Container,
+  Bind,
+  Module,
+  inject,
+  CONTAINER_INSTANCE_PROP
+} from '../src/index';
 
 describe('simple-ts-di', () => {
   it('unbind and rebind', async () => {
@@ -411,5 +417,21 @@ describe('simple-ts-di', () => {
     expect(s3Spy).toHaveBeenCalled();
     expect(test.service.service2).toBeInstanceOf(Service2);
     expect(test.service.service2.service3.sayHi()).toBe('hi');
+  });
+
+  it('should define an instance prop on each resolved class', async () => {
+    class Test {
+      constructor() {}
+    }
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Test);
+      }
+    }
+
+    const container = new Container(new MyModule());
+    const test = await container.get(Test);
+    expect(test[CONTAINER_INSTANCE_PROP]).toBe(container);
   });
 });
