@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'babel-polyfill';
 import { Container, Bind, Module, inject } from '../src/index';
 
 describe('simple-ts-di', () => {
