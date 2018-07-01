@@ -1,7 +1,7 @@
 import { Identifier, INJECTION_MAP } from './Container';
 
 export function inject(named?: Array<Identifier<any>>): ClassDecorator {
-  return (target) => {
+  return target => {
     if (named != null && !Array.isArray(named)) {
       throw new Error('named must be an array');
     }

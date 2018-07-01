@@ -26,7 +26,7 @@ export class Container {
   );
 
   constructor(...modules: Array<Module>) {
-    modules.forEach((module) => module.init(this._bind));
+    modules.forEach(module => module.init(this._bind));
   }
 
   async get<T>(identifier: Identifier<T>): Promise<T> {

@@ -1,1 +1,4 @@
-module.exports = require('@mercateo/ws/prettier.config');
+module.exports = {
+  singleQuote: true,
+  parser: 'typescript'
+};
