@@ -82,7 +82,7 @@ export class Container {
     if (data.class != null) {
       return await this.resolveClass(data.class);
     } else if (data.factory != null) {
-      return await data.factory();
+      return await data.factory(this);
     } else if (data.value) {
       return data.value;
     }

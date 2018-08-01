@@ -435,4 +435,20 @@ describe('simple-ts-di', () => {
     const test = await container.get(Test);
     expect(test[CONTAINER_INSTANCE_PROP]).toBe(container);
   });
+
+  it('should inject me the container in fatcories', async () => {
+    const Test = Symbol();
+    const Foo = Symbol();
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Foo).toValue('bar');
+        bind(Test).toFactory(container => container.get<string>(Foo));
+      }
+    }
+
+    const container = new Container(new MyModule());
+    const test = await container.get(Test);
+    expect(test).toBe('bar');
+  });
 });
