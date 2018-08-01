@@ -332,6 +332,8 @@ describe('simple-ts-di', () => {
   });
 
   it('should only resolve things that a ask for (transitive)', async () => {
+    const s2Spy = jest.fn();
+    const s3Spy = jest.fn();
     class Service2 {
       sayHi() {
         return 'hi';
@@ -348,9 +350,6 @@ describe('simple-ts-di', () => {
     class Test {
       constructor(public service: Service) {}
     }
-
-    const s2Spy = jest.fn();
-    const s3Spy = jest.fn();
 
     class MyModule implements Module {
       init(bind: Bind) {
@@ -374,6 +373,9 @@ describe('simple-ts-di', () => {
     expect(s3Spy).not.toHaveBeenCalled();
     expect(test.service.service2).toBeInstanceOf(Service2);
     expect(test.service.service2.sayHi()).toBe('hi');
+
+    await container.get(Test);
+    expect(s2Spy).toHaveBeenCalledTimes(1);
   });
 
   it('deep resolution', async () => {
