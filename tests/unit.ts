@@ -476,6 +476,9 @@ describe('simple-ts-di', () => {
     const test2 = container.get(Test);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    // expect(test).toBe(test2);
+
+    resolvePromise({});
+
+    expect(await test).toBe(await test2);
   });
 });
