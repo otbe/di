@@ -37,10 +37,11 @@ export class Container {
     }
 
     if (data.scope === 'transient') {
-      return await this.resolve(data);
+      return this.resolve(data);
     } else if (data.scope === 'singleton') {
+      console.log(this.staticInjections.has(data));
       if (!this.staticInjections.has(data)) {
-        this.staticInjections.set(data, await this.resolve(data));
+        this.staticInjections.set(data, this.resolve(data));
       }
 
       return this.staticInjections.get(data);

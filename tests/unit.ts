@@ -36,7 +36,7 @@ describe('simple-ts-di', () => {
     s.unbind(Test);
 
     expect(s.isBound(Test)).toBeFalsy();
-    expect(s.get<Test>(Test)).rejects.toThrow();
+    await expect(s.get<Test>(Test)).rejects.toThrow();
 
     s.bind(Test).to(Test2);
 
@@ -452,5 +452,30 @@ describe('simple-ts-di', () => {
     const container = new Container(new MyModule());
     const test = await container.get(Test);
     expect(test).toBe('bar');
+  });
+
+  it('should not call fatcories twice if they are already pending', async () => {
+    const Test = Symbol();
+    const spy = jest.fn();
+    let resolvePromise;
+
+    class MyModule implements Module {
+      init(bind: Bind) {
+        bind(Test).toFactory(
+          () =>
+            new Promise(resolve => {
+              spy();
+              resolvePromise = resolve;
+            })
+        );
+      }
+    }
+
+    const container = new Container(new MyModule());
+    const test = container.get(Test);
+    const test2 = container.get(Test);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    // expect(test).toBe(test2);
   });
 });
